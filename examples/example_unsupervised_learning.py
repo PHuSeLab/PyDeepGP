@@ -37,7 +37,7 @@ for i in range(len(m.layers)):
     output_var = m.layers[i].Y.var() if i==0 else m.layers[i].Y.mean.var()
     m.layers[i].Gaussian_noise.variance = output_var*0.01
 
-m.optimize(max_iters=5000, messages=True)
+m.optimize(max_iters=500, messages=True)
 
 
 #--------- Inspection ----------#
@@ -51,3 +51,4 @@ plt.figure(figsize=(5,5))
 deepgp.util.visualize_DGP(m, labels, layer=0, dims=[1,2]); plt.title('Layer 0')
 plt.figure(figsize=(5,5))
 deepgp.util.visualize_DGP(m, labels, layer=1, dims=[0,1]); plt.title('Layer 1')
+plt.show()

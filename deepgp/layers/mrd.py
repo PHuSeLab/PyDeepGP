@@ -21,7 +21,7 @@ class MRDView(SparseGP_MPI):
         self.scale = 1.
 
         if back_constraint:
-            from .mlp import MLP
+            from deepgp.encoder.mlp import MLP
             from copy import deepcopy
             self.encoder = MLP([dim_down, int((dim_down+dim_up)*2./3.), int((dim_down+dim_up)/3.), dim_up] if MLP_dims is None else [dim_down]+deepcopy(MLP_dims)+[dim_up])
             X = self.encoder.predict(Y.mean.values if isinstance(Y, VariationalPosterior) else Y)

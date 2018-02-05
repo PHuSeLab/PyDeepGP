@@ -46,7 +46,7 @@ kern2 = GPy.kern.RBF(Q,ARD=False) + GPy.kern.Bias(X_tr.shape[1])
 # Number of inducing points to use
 num_inducing = 40
 # Whether to use back-constraint for variational posterior
-back_constraint = False
+back_constraint = True
 # Dimensions of the MLP back-constraint if set to true
 encoder_dims=[[300],[150]]
 

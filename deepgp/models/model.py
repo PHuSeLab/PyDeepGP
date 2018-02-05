@@ -338,7 +338,7 @@ class DeepGP(Model):
             if self.mpi_comm.rank==root: return XY
             else: return None
         
-    def predict(self, Xnew, full_cov=False, Y_metadata=None, kern=None):
+    def predict(self, Xnew, full_cov=False, Y_metadata=None, kern=None, view=0):
         """Make a prediction from the deep Gaussian process model for a given input"""
         from GPy.core.parameterization.variational import NormalPosterior
         
@@ -359,7 +359,11 @@ class DeepGP(Model):
                 if var.shape[1]==1:
                     var = np.tile(var,mean.shape[1])
                 x = NormalPosterior(mean, var)
-        return self.layers[0].predict(x)
+        mrd_flag = hasattr(self.layers[0], 'views')
+        if mrd_flag:
+            return self.layers[0].views[view].predict(x)
+        else:
+            return self.layers[0].predict(x)
 
     @Model.optimizer_array.setter
     def optimizer_array(self, p):
