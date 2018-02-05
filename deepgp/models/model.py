@@ -21,7 +21,7 @@ class DeepGP(Model):
     """
     
     def __init__(self, nDims, Y, X=None, num_inducing=10,
-                 likelihood = None, inits='PCA', name='deepgp',
+                 likelihood = None, inits='PCA', name='deepgp', view_names=None,
                  kernels=None, obs_data='cont', back_constraint=True,
                  encoder_dims=None, mpi_comm=None, mpi_root=0, repeatX=False,
                  inference_method=None, **kwargs):
@@ -96,7 +96,8 @@ class DeepGP(Model):
                                                         kernel=kernels[i] if kernels is not None else None,
                                                         back_constraint=back_constraint,
                                                         mpi_comm=mpi_comm,
-                                                        mpi_root=mpi_root))
+                                                        mpi_root=mpi_root,
+                                                        view_names=view_names))
                 else:
                     if self.X_observed and self.repeatX:
                         # self.layers.append(ObservedLayer(nDims[0],nDims[1], Y, X=Xs[i], likelihood=likelihood, num_inducing=num_inducing[i], init=inits[i], kernel=kernels[i] if kernels is not None else None, back_constraint=back_constraint, inference_method=inference_method, mpi_comm=mpi_comm, mpi_root=mpi_root))
@@ -338,7 +339,7 @@ class DeepGP(Model):
             if self.mpi_comm.rank==root: return XY
             else: return None
         
-    def predict(self, Xnew, full_cov=False, Y_metadata=None, kern=None, view=0):
+    def predict(self, Xnew, full_cov=False, Y_metadata=None, kern=None, view=None):
         """Make a prediction from the deep Gaussian process model for a given input"""
         from GPy.core.parameterization.variational import NormalPosterior
         
@@ -361,7 +362,11 @@ class DeepGP(Model):
                 x = NormalPosterior(mean, var)
         mrd_flag = hasattr(self.layers[0], 'views')
         if mrd_flag:
-            return self.layers[0].views[view].predict(x)
+            if view is None:
+              return self.layers[0].views[0].predict(x)
+            else:
+              idx = [v.name for v in self.layers[0].views].index('view_' + view)
+              return self.layers[0].views[idx].predict(x)
         else:
             return self.layers[0].predict(x)
 

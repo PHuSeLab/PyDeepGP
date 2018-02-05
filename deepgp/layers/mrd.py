@@ -104,7 +104,7 @@ class MRDView(SparseGP_MPI):
 
 class MRDLayer(Parameterized):
     
-    def __init__(self, dim_down, dim_up, likelihood, MLP_dims=None, X=None, X_variance=None, init='rand',  Z=None, num_inducing=10,  kernel=None, inference_method=None, uncertain_inputs=True,mpi_comm=None, mpi_root=0, back_constraint=True, name='mrdlayer'):
+    def __init__(self, dim_down, dim_up, likelihood, MLP_dims=None, X=None, X_variance=None, init='rand',  Z=None, num_inducing=10,  kernel=None, inference_method=None, uncertain_inputs=True,mpi_comm=None, mpi_root=0, back_constraint=True, name='mrdlayer', view_names=None):
 
         #assert back_constraint
         self.uncertain_inputs = uncertain_inputs
@@ -121,7 +121,7 @@ class MRDLayer(Parameterized):
             view = MRDView(Y[i], dim_down[i],dim_up,likelihood=None if likelihood is None else likelihood[i], MLP_dims=None if MLP_dims is None else MLP_dims[i],
                            X=X, X_variance=X_variance, Z=None if Z is None else Z[i], num_inducing=num_inducing if isinstance(num_inducing,int) else num_inducing[i],
                            kernel= None if kernel is None else kernel[i], inference_method=None if inference_method is None else inference_method[i], uncertain_inputs=uncertain_inputs,
-                           mpi_comm=mpi_comm, mpi_root=mpi_root, back_constraint=back_constraint, name='view_'+str(i))
+                           mpi_comm=mpi_comm, mpi_root=mpi_root, back_constraint=back_constraint, name='view_'+str(i) if view_names is None else 'view_'+view_names[i])
             self.views.append(view)
 
         if self.back_constraint:
@@ -203,7 +203,7 @@ class MRDLayer(Parameterized):
 
 class ObservedMRDLayer(MRDLayer):
 
-    def __init__(self, dim_down, dim_up, Y, X=None, X_variance=None, Z=None, num_inducing=10, kernel=None, inference_method=None, likelihood=None, init='rand', mpi_comm=None, mpi_root=0, MLP_dims=None, name='obslayer',back_constraint=False):
+    def __init__(self, dim_down, dim_up, Y, X=None, X_variance=None, Z=None, num_inducing=10, kernel=None, inference_method=None, likelihood=None, init='rand', mpi_comm=None, mpi_root=0, MLP_dims=None, name='obslayer', view_names=None, back_constraint=False):
         self.layer_lower = None
         self.dim_up, self.dim_down = dim_up, dim_down
         self.Y = Y
@@ -220,7 +220,7 @@ class ObservedMRDLayer(MRDLayer):
 
 
         super(ObservedMRDLayer, self).__init__(dim_down, dim_up, likelihood, init=init, X=X, X_variance=X_variance, Z=Z, MLP_dims=MLP_dims, 
-                                          num_inducing=num_inducing, kernel=kernel, inference_method=inference_method, mpi_comm=mpi_comm, mpi_root=mpi_root,  name=name, back_constraint=back_constraint)
+                                          num_inducing=num_inducing, kernel=kernel, inference_method=inference_method, mpi_comm=mpi_comm, mpi_root=mpi_root, name=name, view_names=view_names, back_constraint=back_constraint)
     
 
     def _init_X(self, Ylist, input_dim, init='PCA'):
