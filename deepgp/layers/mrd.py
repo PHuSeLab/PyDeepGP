@@ -11,7 +11,7 @@ from GPy.util.initialization import initialize_latent
 
 from deepgp.util.variational import NormalEntropy,NormalPrior
 from deepgp.util.parallel import reduceArrays
-
+import code
 class MRDView(SparseGP_MPI):
     
     def __init__(self, Y, dim_down, dim_up, likelihood, MLP_dims=None, X=None, X_variance=None, init='rand',  Z=None, num_inducing=10,  kernel=None, inference_method=None, uncertain_inputs=True,mpi_comm=None, mpi_root=0, back_constraint=True, name='mrd-view'):
@@ -140,6 +140,7 @@ class MRDLayer(Parameterized):
             if self.X is None:
                 self.X = NormalPosterior(np.zeros_like(self.views[0].Xv.mean.values), np.zeros_like(self.views[0].Xv.variance.values))
             else:
+                self.X.set_updates(False)
                 self.X.mean[:]  = 0
                 self.X.variance[:] = 0
             
@@ -149,6 +150,7 @@ class MRDLayer(Parameterized):
                 self.X.mean += v.Xv.mean.values/v.Xv.variance.values        
             self.X.mean /= self.prec_denom
             self.X.variance[:]  = 1./self.prec_denom
+            self.X.set_updates(True)
         else:
             for v in self.views:
                 v.X = self.X

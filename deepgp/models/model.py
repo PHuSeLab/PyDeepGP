@@ -168,7 +168,11 @@ class DeepGP(Model):
                                                mpi_root=mpi_root,
                                                name='enclayer_'+str(i)) for i in range(self.nLayers-1,0,-1)]
             else:
-                self.enclayers = [ EncoderLayer(self.layers[i], direction=direction, encoder_dims=encoder_dims[i] if encoder_dims is not None else None, mpi_comm = mpi_comm, mpi_root=mpi_root,
+                if mrd_flag:
+                    self.enclayers = [ EncoderLayer(self.layers[i], direction=direction, encoder_dims=encoder_dims[i] if encoder_dims is not None else None, mpi_comm = mpi_comm, mpi_root=mpi_root,
+                                            name='enclayer_'+str(i)) for i in range(1,self.nLayers)]                  
+                else:
+                    self.enclayers = [ EncoderLayer(self.layers[i], direction=direction, encoder_dims=encoder_dims[i] if encoder_dims is not None else None, mpi_comm = mpi_comm, mpi_root=mpi_root,
                                             name='enclayer_'+str(i)) for i in range(self.nLayers)]
             self.link_parameters(*(self.enclayers+self.layers))
         else:
